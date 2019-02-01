@@ -1,5 +1,5 @@
 {
-  "name": "reddit-wrapper",
+  "name": "reddit-wrapper-v2",
   "version": "1.0.0",
   "description": "Simple Reddit API framework for nodejs. Replacing the no longer updated reddit-snooper. Relying more on promises rather than callbacks.",
   "main": "reddit-snooper.js",
@@ -11,6 +11,10 @@
   "devDependencies": {
     "mocha": "^3.3.0",
     "should": "^11.2.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Javin-Ambridge/reddit-wrapper"
   },
   "scripts": {
     "test": "mocha test"
