@@ -1,8 +1,17 @@
 {
-  "name": "reddit-snooper-v2",
+  "name": "reddit-wrapper",
   "version": "1.0.0",
-  "description": "Simple Reddit bot framework for nodejs. Replacing the no longer updated reddit-snooper.",
+  "description": "Simple Reddit API framework for nodejs. Replacing the no longer updated reddit-snooper. Relying more on promises rather than callbacks.",
   "main": "reddit-snooper.js",
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "nock": "^10.0.6",
+    "request": "^2.81.0"
+  },
+  "devDependencies": {
+    "mocha": "^3.3.0",
+    "should": "^11.2.1"
+  },
   "scripts": {
     "test": "mocha test"
   },
