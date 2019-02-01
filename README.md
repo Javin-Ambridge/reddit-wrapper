@@ -26,7 +26,7 @@ Reddit-Wrapper is designed to be a simple to user reddit API wrapper, while also
 ## Setup and Configuration
 ### Installing reddit-snooper
 ``` bash
-npm install reddit-wrapper --save
+npm install reddit-wrapper-v2 --save
 ```
 
 ### Library usage and configuration

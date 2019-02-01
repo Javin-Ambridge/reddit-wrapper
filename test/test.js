@@ -3,12 +3,12 @@ var should = require('should');
 var secrets = require('../secrets/secrets');
 const nock = require('nock');
 
-const Snooper = require('../reddit-snooper');
-var snooper = Snooper(secrets.redditOptions);
+const Wrapper = require('../reddit-wrapper');
+var redditConn = Wrapper(secrets.redditOptions);
 
 describe("API Basic Operations", function() {
 	it("Get Request", (done) => {
-		snooper.api.get("/subreddits/mine/subscriber", {
+		redditConn.api.get("/subreddits/mine/subscriber", {
 			limit: 2,
 		})
 		.then(function(results) {
@@ -25,7 +25,7 @@ describe("API Basic Operations", function() {
 		});
 	});
 	it("POST Request", (done) => {
-		snooper.api.post("/api/hide", {
+		redditConn.api.post("/api/hide", {
 			"id": "t3_6arf2r",
 		})
 		.then(function(results) {
@@ -42,7 +42,7 @@ describe("API Basic Operations", function() {
 		});
 	});
 	it("PUT Request", (done) => {
-		snooper.api.put("/api/v1/me/friends/juicypasta", {
+		redditConn.api.put("/api/v1/me/friends/juicypasta", {
 			"name": "juicypasta",
 		})
 		.then(function(results) {
@@ -59,7 +59,7 @@ describe("API Basic Operations", function() {
 		});
 	});
 	it("PATCH Request", (done) => {
-		snooper.api.patch("/api/v1/me/prefs/", {
+		redditConn.api.patch("/api/v1/me/prefs/", {
 			"over_18": true,
 		})
 		.then(function(results) {
@@ -76,7 +76,7 @@ describe("API Basic Operations", function() {
 		});
 	});
 	it("Get Token", (done) => {
-		snooper.api.get_token()
+		redditConn.api.get_token()
 		.then(function(results) {
 			let token = results[0];
 			token.should.be.ok();
@@ -93,7 +93,7 @@ describe("Trying too much delay, success after waiting", function() {
 	beforeEach(() => {
 		var rOptions = secrets.redditOptions;
 		rOptions.retry_on_wait = true;
-		snooper = Snooper(rOptions);
+		redditConn = Wrapper(rOptions);
 
 		nock("https://oauth.reddit.com")
 		.get("/subreddits/mine/subscriber?limit=2")
@@ -110,7 +110,7 @@ describe("Trying too much delay, success after waiting", function() {
 	})
 
 	it("Get Request and delay for 3 seconds", (done) => {
-		snooper.api.get("/subreddits/mine/subscriber", {
+		redditConn.api.get("/subreddits/mine/subscriber", {
 			limit: 2,
 		})
 		.then(function(results) {
@@ -132,7 +132,7 @@ describe("Trying too much delay, error after waiting", function() {
 	beforeEach(() => {
 		var rOptions = secrets.redditOptions;
 		rOptions.retry_on_wait = true;
-		snooper = Snooper(rOptions);
+		redditConn = Wrapper(rOptions);
 
 		nock("https://oauth.reddit.com")
 		.get("/subreddits/mine/subscriber?limit=2")
@@ -154,7 +154,7 @@ describe("Trying too much delay, error after waiting", function() {
 	})
 
 	it("Get Request and delay for 3 seconds", (done) => {
-		snooper.api.get("/subreddits/mine/subscriber", {
+		redditConn.api.get("/subreddits/mine/subscriber", {
 			limit: 2,
 		})
 		.then(function(results) {
@@ -172,7 +172,7 @@ describe("Server Error, retry max 5 times. Sixth and final retry is success. No 
 		var rOptions = secrets.redditOptions;
 		rOptions.retry_on_server_error = 5;
 		rOptions.retry_delay = 1;
-		snooper = Snooper(rOptions);
+		redditConn = Wrapper(rOptions);
 
 		nock("https://oauth.reddit.com")
 		.get("/subreddits/mine/subscriber?limit=2")
@@ -199,7 +199,7 @@ describe("Server Error, retry max 5 times. Sixth and final retry is success. No 
 	})
 
 	it("Get Request and delay for 3 seconds", (done) => {
-		snooper.api.get("/subreddits/mine/subscriber", {
+		redditConn.api.get("/subreddits/mine/subscriber", {
 			limit: 2,
 		})
 		.then(function(results) {
@@ -221,7 +221,7 @@ describe("Server Error, retry max 5 times. Sixth and final retry is error again.
 		var rOptions = secrets.redditOptions;
 		rOptions.retry_on_server_error = 5;
 		rOptions.retry_delay = 1;
-		snooper = Snooper(rOptions);
+		redditConn = Wrapper(rOptions);
 
 		nock("https://oauth.reddit.com")
 		.get("/subreddits/mine/subscriber?limit=2")
@@ -243,7 +243,7 @@ describe("Server Error, retry max 5 times. Sixth and final retry is error again.
 	})
 
 	it("Get Request and delay for 3 seconds", (done) => {
-		snooper.api.get("/subreddits/mine/subscriber", {
+		redditConn.api.get("/subreddits/mine/subscriber", {
 			limit: 2,
 		})
 		.then(function(results) {
@@ -256,12 +256,12 @@ describe("Server Error, retry max 5 times. Sixth and final retry is error again.
 	});
 });
 
-describe("Server Error, retry max 2 times. Third time is success. 5s delay.", function() {
+describe("Server Error, retry max 2 times. Third time is success. 2s delay.", function() {
 	beforeEach(() => {
 		var rOptions = secrets.redditOptions;
 		rOptions.retry_on_server_error = 5;
-		rOptions.retry_delay = 1;
-		snooper = Snooper(rOptions);
+		rOptions.retry_delay = 2;
+		redditConn = Wrapper(rOptions);
 
 		nock("https://oauth.reddit.com")
 		.get("/subreddits/mine/subscriber?limit=2")
@@ -279,7 +279,7 @@ describe("Server Error, retry max 2 times. Third time is success. 5s delay.", fu
 	})
 
 	it("Get Request and delay for 3 seconds", (done) => {
-		snooper.api.get("/subreddits/mine/subscriber", {
+		redditConn.api.get("/subreddits/mine/subscriber", {
 			limit: 2,
 		})
 		.then(function(results) {

@@ -2,7 +2,7 @@
   "name": "reddit-wrapper-v2",
   "version": "1.0.0",
   "description": "Simple Reddit API framework for nodejs. Replacing the no longer updated reddit-snooper. Relying more on promises rather than callbacks.",
-  "main": "reddit-snooper.js",
+  "main": "reddit-wrapper.js",
   "dependencies": {
     "bluebird": "^3.5.1",
     "nock": "^10.0.6",
