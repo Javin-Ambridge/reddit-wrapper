@@ -1,0 +1,11 @@
+{
+  "name": "reddit-snooper-v2",
+  "version": "1.0.0",
+  "description": "Simple Reddit bot framework for nodejs. Replacing the no longer updated reddit-snooper.",
+  "main": "reddit-snooper.js",
+  "scripts": {
+    "test": "mocha test"
+  },
+  "author": "Javin Ambridge",
+  "license": "ISC"
+}
