@@ -1,6 +1,8 @@
 
 # Reddit-Wrapper-V2 - Reddit API framework for Nodejs
 
+[![npm package](https://nodei.co/npm/reddit-wrapper-v2.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/reddit-wrapper-v2/)
+
 ## Simple to use
 Reddit-Wrapper is designed to be a simple to user reddit API wrapper, while also providing robust error handling and retry capabilities. Every function returns a promise. Allowing the user to easily handle errors in the catch, and results in the then.
 
