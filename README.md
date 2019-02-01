@@ -45,17 +45,17 @@ var redditConn = new RedditAPI(
 			// Optional values
             user_agent: 'user agent for your bot',
 			
-			// Retry on Wait tells the API Wrapper that whenever reddit replies with the message
-			// "You are doing this too much, try again". To sleep the process until the second 
-			// after reddit will allow posting, and then post again. (This is a hard sleep).
+		// Retry on Wait tells the API Wrapper that whenever reddit replies with the message
+		// "You are doing this too much, try again". To sleep the process until the second 
+		// after reddit will allow posting, and then post again. (This is a hard sleep).
 			retry_on_wait: true, // Default: false
 			
-			// Retry on Server Error tells the wrapper to retry making requests a certain amount
-			// of times, if a reddit server error is encountered (Ie. "Ow. Please try again.").
-			// Specifying 5 times will attempt the request a MAXIMUM of 6 times. 
+		// Retry on Server Error tells the wrapper to retry making requests a certain amount
+		// of times, if a reddit server error is encountered (Ie. "Ow. Please try again.").
+		// Specifying 5 times will attempt the request a MAXIMUM of 6 times. 
 			retry_on_server_error: 5, // Default: 0
 			
-			// Retry Delay specifies the delay between server error retries. The unit is seconds.
+		// Retry Delay specifies the delay between server error retries. The unit is seconds.
 			retry_delay: 1, // Default: 5 seconds.
         })
 ```
