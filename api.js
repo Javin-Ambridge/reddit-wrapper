@@ -87,7 +87,7 @@ module.exports = function(options) {
 			});
 		}
 
-		_make_request(token, endpoint, method, data, waitingRetryCount, retryOnServerErrorEnabled) {
+		_make_request(token, endpoint, method, data, waitingRetryCount, retryOnServerErrorEnabled, retryOn403) {
 			let self = this;
 			return new Promise(function(resolve, reject) {
 				let request_options = {
@@ -132,7 +132,7 @@ module.exports = function(options) {
 									self.logHelper("Retrying [in " + retryingSec + " seconds] making request due to ratelimit.");
 									return setTimeout(function() {
 										// Retry this now that the wait is complete.
-										return self._make_request(token, endpoint, method, data, waitingRetryCount + 1, true)
+										return self._make_request(token, endpoint, method, data, waitingRetryCount + 1, true, true)
 										.then(function(results) {
 											return resolve(results);
 										})
@@ -150,6 +150,27 @@ module.exports = function(options) {
 						case 3: // Redirection
 							return resolve([res.statusCode, body]);
 						case 4: // Client error
+
+							// If this is a 403 (Forbidden) usually means that the access token has expired, so get a new token and retry.
+							if (res.statusCode == 403 && retryOn403) {
+								self.logHelper("Encountered 403, retrying after grabbing new token.");
+								return self.get_token()
+								.then(function(tkn) {
+									return self._make_request(tkn, endpoint, method, data, waitingRetryCount, retryOnServerErrorEnabled, false)
+									.then(function(results) {
+										return resolve(results);
+									})
+									.catch(function(err) {
+										return reject(err);
+									});
+								})
+								.catch(function(err) {
+									return reject(err);
+								});
+							} else if (res.statusCode == 403) {
+								return reject("Received two 403's in a row. Not retrying again.");
+							}
+
 							return resolve([res.statusCode, body]);
 						case 5: // Server Error
 
@@ -176,7 +197,7 @@ module.exports = function(options) {
 			return new Promise(function(super_resolve, super_reject) {
 				return Promise.mapSeries(new Array(self.retry_on_server_error + 1), function() {
 					return new Promise(function(resolve, reject) {
-						self._make_request(token, endpoint, method, data, 0, false)
+						self._make_request(token, endpoint, method, data, 0, false, true)
 						.then(function(results) {
 							return super_resolve(results);
 						})
@@ -209,7 +230,7 @@ module.exports = function(options) {
 			return new Promise(function(resolve, reject) {
 				self.get_token()
 				.then(function(token) {
-					return self._make_request(token, URL + endpoint, METHOD, data, 0, true);
+					return self._make_request(token, URL + endpoint, METHOD, data, 0, true, true);
 				})
 				.then(function(results) {
 					// Returning [resultCode, body]

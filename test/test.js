@@ -446,3 +446,75 @@ describe("1 server error, then hard wait, then 1 server error, then success.", f
 		});
 	});
 });
+
+describe("403 Initially, retry after getting new token.", function() {
+	beforeEach(() => {
+		var rOptions = secrets.redditOptions;
+		rOptions.retry_on_server_error = 5;
+		rOptions.retry_delay = 2;
+		rOptions.retry_on_wait = true;
+		redditConn = Wrapper(rOptions);
+
+		nock("https://oauth.reddit.com")
+		.get("/subreddits/mine/subscriber?limit=2")
+		.once()
+		.reply(403, {});
+
+
+		nock("https://oauth.reddit.com")
+		.get("/subreddits/mine/subscriber?limit=2")
+		.once()
+		.reply(200, {});
+	})
+
+	it("403 retry -> success", (done) => {
+		redditConn.api.get("/subreddits/mine/subscriber", {
+			limit: 2,
+		})
+		.then(function(results) {
+			let responseCode = results[0];
+			let data = results[1];
+
+			console.log("Response code: " + responseCode);
+			responseCode.should.be.equal(200);
+			done();
+		})
+		.catch(function(err) {
+			// Should not reach here, timeout if we do.
+		});
+	});
+});
+
+describe("403 Initially, 403 again.", function() {
+	beforeEach(() => {
+		var rOptions = secrets.redditOptions;
+		rOptions.retry_on_server_error = 5;
+		rOptions.retry_delay = 2;
+		rOptions.retry_on_wait = true;
+		redditConn = Wrapper(rOptions);
+
+		nock("https://oauth.reddit.com")
+		.get("/subreddits/mine/subscriber?limit=2")
+		.once()
+		.reply(403, {});
+
+
+		nock("https://oauth.reddit.com")
+		.get("/subreddits/mine/subscriber?limit=2")
+		.once()
+		.reply(403, {});
+	})
+
+	it("403 retry, 403 -> error", (done) => {
+		redditConn.api.get("/subreddits/mine/subscriber", {
+			limit: 2,
+		})
+		.then(function(results) {
+			// Should not reach here, timeout if we do.
+		})
+		.catch(function(err) {
+			should(err).be.ok();
+			done();
+		});
+	});
+});

@@ -126,6 +126,7 @@ redditWrapper.api.get_token()
 
 *Note: new accounts get little to no posting privileges (1 comment or post per 5 minutes or more) if you dont have any karma. If you just want to play around with the api I recommend using an active account.*
 *Note: the response from any HTTP methods will be an array containing [responseCode, data].*
+*Note: Any 403 that occurs during a retry process will cause a token refresh and a endpoint retry.*
 
 
 ### basic api usage
