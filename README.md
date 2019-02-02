@@ -59,6 +59,9 @@ var redditConn = new RedditAPI(
 			
 		// Retry Delay specifies the delay between server error retries. The unit is seconds.
 		retry_delay: 1, // Default: 5 seconds.
+
+		// Display logs
+		logs: true // default: false
         })
 ```
 

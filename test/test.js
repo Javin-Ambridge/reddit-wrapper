@@ -109,7 +109,7 @@ describe("Trying too much delay, success after waiting", function() {
 		.reply(200, {});
 	})
 
-	it("Get Request and delay for 3 seconds", (done) => {
+	it("Get Request and delay for 3 seconds -> success", (done) => {
 		redditConn.api.get("/subreddits/mine/subscriber", {
 			limit: 2,
 		})
@@ -153,7 +153,7 @@ describe("Trying too much delay, error after waiting", function() {
 		});
 	})
 
-	it("Get Request and delay for 3 seconds", (done) => {
+	it("Get Request and delay for 3 seconds -> error", (done) => {
 		redditConn.api.get("/subreddits/mine/subscriber", {
 			limit: 2,
 		})
@@ -177,20 +177,12 @@ describe("Server Error, retry max 5 times. Sixth and final retry is success. No 
 		nock("https://oauth.reddit.com")
 		.get("/subreddits/mine/subscriber?limit=2")
 		.thrice()
-		.reply(500, {
-			json: {
-				ratelimit: 3,
-			},
-		});
+		.reply(500, {});
 
 		nock("https://oauth.reddit.com")
 		.get("/subreddits/mine/subscriber?limit=2")
 		.twice()
-		.reply(500, {
-			json: {
-				ratelimit: 3,
-			},
-		});
+		.reply(500, {});
 
 		nock("https://oauth.reddit.com")
 		.get("/subreddits/mine/subscriber?limit=2")
@@ -198,7 +190,7 @@ describe("Server Error, retry max 5 times. Sixth and final retry is success. No 
 		.reply(200, {});
 	})
 
-	it("Get Request and delay for 3 seconds", (done) => {
+	it("Get Request and retry 5 times -> success", (done) => {
 		redditConn.api.get("/subreddits/mine/subscriber", {
 			limit: 2,
 		})
@@ -242,7 +234,7 @@ describe("Server Error, retry max 5 times. Sixth and final retry is error again.
 		});
 	})
 
-	it("Get Request and delay for 3 seconds", (done) => {
+	it("Get Request, retry on server error 6 times -> error", (done) => {
 		redditConn.api.get("/subreddits/mine/subscriber", {
 			limit: 2,
 		})
@@ -278,7 +270,166 @@ describe("Server Error, retry max 2 times. Third time is success. 2s delay.", fu
 		.reply(200, {});
 	})
 
-	it("Get Request and delay for 3 seconds", (done) => {
+	it("Get Request, server error -> success", (done) => {
+		redditConn.api.get("/subreddits/mine/subscriber", {
+			limit: 2,
+		})
+		.then(function(results) {
+			let responseCode = results[0];
+			let data = results[1];
+
+			console.log("Response code: " + responseCode);
+			responseCode.should.be.equal(200);
+			done();
+		})
+		.catch(function(err) {
+			// Should not reach here, timeout if we do.
+		});
+	});
+});
+
+describe("Server Error, retry max 2 times. Third time is hard wait.", function() {
+	beforeEach(() => {
+		var rOptions = secrets.redditOptions;
+		rOptions.retry_on_server_error = 5;
+		rOptions.retry_delay = 2;
+		rOptions.retry_on_wait = true;
+		redditConn = Wrapper(rOptions);
+
+		nock("https://oauth.reddit.com")
+		.get("/subreddits/mine/subscriber?limit=2")
+		.twice()
+		.reply(500, {
+			json: {
+				ratelimit: 3,
+			},
+		});
+
+		nock("https://oauth.reddit.com")
+		.get("/subreddits/mine/subscriber?limit=2")
+		.once()
+		.reply(200, {
+			json: {
+				ratelimit: 3,
+			},
+		});
+
+				nock("https://oauth.reddit.com")
+		.get("/subreddits/mine/subscriber?limit=2")
+		.once()
+		.reply(200, {});
+	})
+
+	it("Get Request, 2 server errors, 1 hard wait -> success", (done) => {
+		redditConn.api.get("/subreddits/mine/subscriber", {
+			limit: 2,
+		})
+		.then(function(results) {
+			let responseCode = results[0];
+			let data = results[1];
+
+			console.log("Response code: " + responseCode);
+			responseCode.should.be.equal(200);
+			done();
+		})
+		.catch(function(err) {
+			// Should not reach here, timeout if we do.
+		});
+	});
+});
+
+describe("Hard wait, then 2 server errors and then success..", function() {
+	beforeEach(() => {
+		var rOptions = secrets.redditOptions;
+		rOptions.retry_on_server_error = 5;
+		rOptions.retry_delay = 2;
+		rOptions.retry_on_wait = true;
+		redditConn = Wrapper(rOptions);
+
+		nock("https://oauth.reddit.com")
+		.get("/subreddits/mine/subscriber?limit=2")
+		.once()
+		.reply(200, {
+			json: {
+				ratelimit: 3,
+			},
+		});
+
+		nock("https://oauth.reddit.com")
+		.get("/subreddits/mine/subscriber?limit=2")
+		.twice()
+		.reply(500, {
+			json: {
+				ratelimit: 3,
+			},
+		});
+
+				nock("https://oauth.reddit.com")
+		.get("/subreddits/mine/subscriber?limit=2")
+		.once()
+		.reply(200, {});
+	})
+
+	it("Get Request, 1 hard wait, 2 server errors -> success", (done) => {
+		redditConn.api.get("/subreddits/mine/subscriber", {
+			limit: 2,
+		})
+		.then(function(results) {
+			let responseCode = results[0];
+			let data = results[1];
+
+			console.log("Response code: " + responseCode);
+			responseCode.should.be.equal(200);
+			done();
+		})
+		.catch(function(err) {
+			// Should not reach here, timeout if we do.
+		});
+	});
+});
+
+describe("1 server error, then hard wait, then 1 server error, then success.", function() {
+	beforeEach(() => {
+		var rOptions = secrets.redditOptions;
+		rOptions.retry_on_server_error = 5;
+		rOptions.retry_delay = 2;
+		rOptions.retry_on_wait = true;
+		redditConn = Wrapper(rOptions);
+
+		nock("https://oauth.reddit.com")
+		.get("/subreddits/mine/subscriber?limit=2")
+		.once()
+		.reply(500, {
+			json: {
+				ratelimit: 3,
+			},
+		});
+
+		nock("https://oauth.reddit.com")
+		.get("/subreddits/mine/subscriber?limit=2")
+		.twice()
+		.reply(200, {
+			json: {
+				ratelimit: 3,
+			},
+		});
+
+		nock("https://oauth.reddit.com")
+		.get("/subreddits/mine/subscriber?limit=2")
+		.once()
+		.reply(500, {
+			json: {
+				ratelimit: 3,
+			},
+		});
+
+		nock("https://oauth.reddit.com")
+		.get("/subreddits/mine/subscriber?limit=2")
+		.once()
+		.reply(200, {});
+	})
+
+	it("Get Request, 1 server error, 1 hard wait, 1 server error -> success", (done) => {
 		redditConn.api.get("/subreddits/mine/subscriber", {
 			limit: 2,
 		})
