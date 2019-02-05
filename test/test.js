@@ -8,7 +8,7 @@ var redditConn = Wrapper(secrets.redditOptions);
 
 describe("API Basic Operations", function() {
 	it("Get Request", (done) => {
-		redditConn.api.get("/subreddits/mine/subscriber", {
+		redditConn.api.get("/r/funny/about/rules", {
 			limit: 2,
 		})
 		.then(function(results) {

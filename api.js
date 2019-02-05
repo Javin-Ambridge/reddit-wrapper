@@ -82,6 +82,11 @@ module.exports = function(options) {
 					let token_info = JSON.parse(body);
 					self.token_expiration = Date.now() / 1000 + token_info.expires_in / 2;
 					self.token = token_info.token_type + " " + token_info.access_token;
+
+					if (token_info.token_type == undefined || token_info.access_token == undefined) {
+						self.logHelper("The token retrieved was undefined. The username which we couln't get a token for is: " + self.username);
+					}
+
 					return resolve(self.token);
 				})
 			});
@@ -115,7 +120,7 @@ module.exports = function(options) {
 					}
 
 					// dont parse if its already an object
-					let body = (typeof body_json === "string") ? JSON.parse(body_json) : body_json;
+					var body = (typeof body_json === "string") ? JSON.parse(body_json) : body_json;
 
 					// The status
 					let status_class = Math.floor(res.statusCode / 100);

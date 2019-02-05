@@ -1,10 +1,15 @@
 
+
 # Reddit-Wrapper-V2 - Reddit API framework for Nodejs
 
 [![npm package](https://nodei.co/npm/reddit-wrapper-v2.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/reddit-wrapper-v2/)
 
 ## Simple to use
 Reddit-Wrapper is designed to be a simple to user reddit API wrapper, while also providing robust error handling and retry capabilities. Every function returns a promise. Allowing the user to easily handle errors in the catch, and results in the then.
+
+This wrapper also has a lot of error handling functionality. As Reddit sometimes errors out in strange ways (random 403's, "You are doing this too much...") handling it within this wrapper allows users to focus on non reddit functionality. Find below all the error handling strategies you can opt into. By default **no** error handling options are enabled except for automatic 403 retries.
+
+Simple API usage:
 
 ``` js
 	reddit.api.get("/subreddits/mine/subscriber", {
@@ -37,33 +42,32 @@ var RedditAPI = require('reddit-wrapper');
 
 var redditConn = new RedditAPI(
         {
-            // credential information is not needed for snooper.watcher
-            // Required values:
+            // Options for Reddit Wrapper
             username: 'reddit_username',
             password: 'reddit password',
             app_id: 'reddit api app id',
             api_secret: 'reddit api secret',
-
-			// Optional values
             user_agent: 'user agent for your bot',
-			
-		// Retry on Wait tells the API Wrapper that whenever reddit replies with the message
-		// "You are doing this too much, try again". To sleep the process until the second 
-		// after reddit will allow posting, and then post again. (This is a hard sleep).
-		retry_on_wait: true, // Default: false
-			
-		// Retry on Server Error tells the wrapper to retry making requests a certain amount
-		// of times, if a reddit server error is encountered (Ie. "Ow. Please try again.").
-		// Specifying 5 times will attempt the request a MAXIMUM of 6 times. 
-		retry_on_server_error: 5, // Default: 0
-			
-		// Retry Delay specifies the delay between server error retries. The unit is seconds.
-		retry_delay: 1, // Default: 5 seconds.
-
-		// Display logs
-		logs: true // default: false
+			retry_on_wait: true, // Default: false
+			retry_on_server_error: 5, // Default: 0
+			retry_delay: 1, // Default: 5 seconds.
+			logs: true // default: false
         })
 ```
+
+### Reddit API Options 
+
+| Option Name           | Option Default    | Description                                                                                                                                                        | Required |
+|-----------------------|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
+| username              | null              | The Username for the Reddit Account.                                                                                                                               | True     |
+| password              | null              | The Password for the Reddit Account.                                                                                                                               | True     |
+| app_id                | null              | The Reddit Application ID.                                                                                                                                         | True     |
+| api_secret            | null              | The Reddit Application Secret.                                                                                                                                     | True     |
+| logs                  | False             | Display logs.                                                                                                                                                      | False    |
+| user_agent            | Reddit-Snooper-V2 | The User Agent for all Reddit API requests.                                                                                                                        | False    |
+| retry_on_wait         | False             | If True and Reddit returns a "You are trying this too much" error, it will pause the process for the exact time needed, then retry the request.                    | False    |
+| retry_on_server_error | 0                 | If > 0 and Reddit returns a server error (responseCode >= 500 && responseCode <= 599) it will retry the request the number of times you specify + 1 automatically. | False    |
+| retry_delay           | 5 sec.            | Specifies the retry delay for server error retries. (IE. if server error and you specify you want to retry before retrying it will delay for retry_delay seconds.) | False    |
 
 ### API setup 
 All you need to get up and running is obtain an api_id and an api_secret. Both can be created on the [Reddit app console](https://reddit.com/prefs/apps)
