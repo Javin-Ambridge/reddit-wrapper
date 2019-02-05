@@ -46,13 +46,56 @@ module.exports = function(options) {
             }
         }
 
-        logHelper(str) {
+        _logHelper(str) {
         	if (this.logs) {
         		console.log(str);
         	}
         }
 
+        _parseBodyHelper(body_json) {
+        	let self = this;
+        	var body;
+			if (typeof body_json === "string") {
+				try {
+					body = JSON.parse(body_json);
+				} catch(e) {
+					self._logHelper("Error parsing JSON body: " + e + " just returning body.");
+					body = body_json;
+				}
+			} else {
+				body = body_json;
+			}
+			return body;
+        }
+
         get_token() {
+        	return this._get_token_helper(true);
+        }
+
+        _get_token_server_error_looper() {
+        	var self = this;
+        	return new Promise(function(super_resolve, super_reject) {
+				return Promise.mapSeries(new Array(self.retry_on_server_error + 1), function() {
+					return new Promise(function(res1, rej1) {
+						self._get_token_helper(false)
+						.then(function(result) {
+							if (result != undefined) {
+								return super_resolve(result);
+							} else {
+								return setTimeout(function() {
+									return res1();
+								}, self.retry_delay * 1000);
+							}
+						})
+						.catch(function(err) {
+							return super_reject(err);
+						});
+					});
+				});
+			});
+        }
+
+        _get_token_helper(handleErrors) {
         	let self = this;
 
         	if (Date.now() / 1000 <= self.token_expiration) {
@@ -79,15 +122,45 @@ module.exports = function(options) {
 						return reject("Error getting token: " + err);
 					}
 
-					let token_info = JSON.parse(body);
-					self.token_expiration = Date.now() / 1000 + token_info.expires_in / 2;
-					self.token = token_info.token_type + " " + token_info.access_token;
+					// The status
+					let status_class = Math.floor(res.statusCode / 100);
 
-					if (token_info.token_type == undefined || token_info.access_token == undefined) {
-						self.logHelper("The token retrieved was undefined. The username which we couln't get a token for is: " + self.username);
+					if (status_class == 2) { // 200 Level so **quickly** return.
+						let token_info = self._parseBodyHelper(body);
+						self.token_expiration = Date.now() / 1000 + token_info.expires_in / 2;
+						self.token = token_info.token_type + " " + token_info.access_token;
+
+						if (token_info.token_type == undefined || token_info.access_token == undefined) {
+							self._logHelper("The token retrieved was undefined. The username which we couln't get a token for is: " + self.username);
+						}
+
+						return resolve(self.token);
+					} else if (status_class == 4) { // Most likely a 403 here
+						self._logHelper("Getting token has resulted in: " + res.statusCode + " here. This can originate from not giving this user access in your Reddit App Preferences. Can't obtain token.");
+						return resolve(self.token);
+					} else if (status_class == 5) { // 503 possibly, server error most likely. do some retries if specified.
+
+						if (self.retry_on_server_error > 0 && handleErrors) {
+							self._logHelper("Received server error when trying to get token, attempting " + (self.retry_on_server_error + 1) + " retries.");
+							return self._get_token_server_error_looper()
+							.then(function(newToken) {
+								self.token = newToken;
+								return resolve(self.token);
+							})
+							.catch(function(err) {
+								return reject(err);
+							});
+						} else {
+
+							if (handleErrors) {
+								self._logHelper("Getting token has resulted in: " + res.statusCode + " here. Try enabling retries on server errors to automatically retry on this error.");
+							}
+
+							return resolve(undefined);
+						}
+					} else {
+						return resolve(self.token);
 					}
-
-					return resolve(self.token);
 				})
 			});
 		}
@@ -113,19 +186,19 @@ module.exports = function(options) {
 					request_options.form = data;
 				}
 
-				self.logHelper("Making " + method + " request to: " + endpoint);
+				self._logHelper("Making " + method + " request to: " + endpoint);
 				request(request_options, (err, res, body_json) => {
 					if (err) {
 						return reject("Error making request: " + err);
 					}
 
 					// dont parse if its already an object
-					var body = (typeof body_json === "string") ? JSON.parse(body_json) : body_json;
+					var body = self._parseBodyHelper(body_json);
 
 					// The status
 					let status_class = Math.floor(res.statusCode / 100);
 
-					self.logHelper("Have gotten a response with the following statusCode: " + res.statusCode);
+					self._logHelper("Have gotten a response with the following statusCode: " + res.statusCode);
 					switch (status_class) {
 						case 1: // Information
 							return resolve([res.statusCode, body]);
@@ -134,7 +207,7 @@ module.exports = function(options) {
 
 								var retryingSec = body.json.ratelimit;
 								if (retryingSec > 0 && self.retry_on_wait && waitingRetryCount == 0) {
-									self.logHelper("Retrying [in " + retryingSec + " seconds] making request due to ratelimit.");
+									self._logHelper("Retrying [in " + retryingSec + " seconds] making request due to ratelimit.");
 									return setTimeout(function() {
 										// Retry this now that the wait is complete.
 										return self._make_request(token, endpoint, method, data, waitingRetryCount + 1, true, true)
@@ -158,7 +231,7 @@ module.exports = function(options) {
 
 							// If this is a 403 (Forbidden) usually means that the access token has expired, so get a new token and retry.
 							if (res.statusCode == 403 && retryOn403) {
-								self.logHelper("Encountered 403, retrying after grabbing new token.");
+								self._logHelper("Encountered 403, retrying after grabbing new token.");
 								return self.get_token()
 								.then(function(tkn) {
 									return self._make_request(tkn, endpoint, method, data, waitingRetryCount, retryOnServerErrorEnabled, false)
@@ -211,12 +284,12 @@ module.exports = function(options) {
 							if (errSplit.length >= 2) {
 								// Continue (aka try again) 
 								return setTimeout(function() {
-									self.logHelper("Got Server Error. Retrying Request.");
+									self._logHelper("Got Server Error. Retrying Request.");
 									return resolve();
 								}, self.retry_delay * 1000);
 							}
 
-							self.logHelper("This should not be reached! Please report a bug!");
+							self._logHelper("This should not be reached! Please report a bug!");
 							return resolve();
 						});
 					});

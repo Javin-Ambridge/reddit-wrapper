@@ -9,20 +9,16 @@ var redditConn = Wrapper(secrets.redditOptions);
 describe("API Basic Operations", function() {
 	it("Get Request", (done) => {
 		redditConn.api.get("/r/funny/about/rules", {
-			limit: 2,
+			limit: 2
 		})
 		.then(function(results) {
 			let responseCode = results[0];
 			let data = results[1];
 
-			console.log("Response code: " + responseCode);
 			responseCode.should.be.equal(200);
 			done();
 		})
-		.catch(function(err) {
-			should(err).not.be.ok();
-			done();
-		});
+		.catch(function(err) {});
 	});
 	it("POST Request", (done) => {
 		redditConn.api.post("/api/hide", {
@@ -32,14 +28,10 @@ describe("API Basic Operations", function() {
 			let responseCode = results[0];
 			let data = results[1];
 
-			console.log("Response code: " + responseCode);
 			responseCode.should.be.equal(200);
 			done();
 		})
-		.catch(function(err) {
-			should(err).not.be.ok();
-			done();
-		});
+		.catch(function(err) {});
 	});
 	it("PUT Request", (done) => {
 		redditConn.api.put("/api/v1/me/friends/juicypasta", {
@@ -49,14 +41,10 @@ describe("API Basic Operations", function() {
 			let responseCode = results[0];
 			let data = results[1];
 
-			console.log("Response code: " + responseCode);
 			responseCode.should.be.equal(200);
 			done();
 		})
-		.catch(function(err) {
-			should(err).not.be.ok();
-			done();
-		});
+		.catch(function(err) {});
 	});
 	it("PATCH Request", (done) => {
 		redditConn.api.patch("/api/v1/me/prefs/", {
@@ -66,14 +54,10 @@ describe("API Basic Operations", function() {
 			let responseCode = results[0];
 			let data = results[1];
 
-			console.log("Response code: " + responseCode);
 			responseCode.should.be.equal(200);
 			done();
 		})
-		.catch(function(err) {
-			should(err).not.be.ok();
-			done();
-		});
+		.catch(function(err) {});
 	});
 	it("Get Token", (done) => {
 		redditConn.api.get_token()
@@ -82,10 +66,7 @@ describe("API Basic Operations", function() {
 			token.should.be.ok();
 			done();
 		})
-		.catch(function(err) {
-			should(err).not.be.ok();
-			done();
-		});
+		.catch(function(err) {});
 	})
 });
 
@@ -117,7 +98,6 @@ describe("Trying too much delay, success after waiting", function() {
 			let responseCode = results[0];
 			let data = results[1];
 
-			console.log("Response code: " + responseCode);
 			responseCode.should.be.equal(200);
 			done();
 		})
@@ -198,7 +178,6 @@ describe("Server Error, retry max 5 times. Sixth and final retry is success. No 
 			let responseCode = results[0];
 			let data = results[1];
 
-			console.log("Response code: " + responseCode);
 			responseCode.should.be.equal(200);
 			done();
 		})
@@ -252,7 +231,7 @@ describe("Server Error, retry max 2 times. Third time is success. 2s delay.", fu
 	beforeEach(() => {
 		var rOptions = secrets.redditOptions;
 		rOptions.retry_on_server_error = 5;
-		rOptions.retry_delay = 2;
+		rOptions.retry_delay = 1;
 		redditConn = Wrapper(rOptions);
 
 		nock("https://oauth.reddit.com")
@@ -278,7 +257,6 @@ describe("Server Error, retry max 2 times. Third time is success. 2s delay.", fu
 			let responseCode = results[0];
 			let data = results[1];
 
-			console.log("Response code: " + responseCode);
 			responseCode.should.be.equal(200);
 			done();
 		})
@@ -292,7 +270,7 @@ describe("Server Error, retry max 2 times. Third time is hard wait.", function()
 	beforeEach(() => {
 		var rOptions = secrets.redditOptions;
 		rOptions.retry_on_server_error = 5;
-		rOptions.retry_delay = 2;
+		rOptions.retry_delay = 1;
 		rOptions.retry_on_wait = true;
 		redditConn = Wrapper(rOptions);
 
@@ -328,7 +306,6 @@ describe("Server Error, retry max 2 times. Third time is hard wait.", function()
 			let responseCode = results[0];
 			let data = results[1];
 
-			console.log("Response code: " + responseCode);
 			responseCode.should.be.equal(200);
 			done();
 		})
@@ -338,11 +315,11 @@ describe("Server Error, retry max 2 times. Third time is hard wait.", function()
 	});
 });
 
-describe("Hard wait, then 2 server errors and then success..", function() {
+describe("Hard wait, then 2 server errors and then success", function() {
 	beforeEach(() => {
 		var rOptions = secrets.redditOptions;
 		rOptions.retry_on_server_error = 5;
-		rOptions.retry_delay = 2;
+		rOptions.retry_delay = 1;
 		rOptions.retry_on_wait = true;
 		redditConn = Wrapper(rOptions);
 
@@ -378,7 +355,6 @@ describe("Hard wait, then 2 server errors and then success..", function() {
 			let responseCode = results[0];
 			let data = results[1];
 
-			console.log("Response code: " + responseCode);
 			responseCode.should.be.equal(200);
 			done();
 		})
@@ -392,7 +368,7 @@ describe("1 server error, then hard wait, then 1 server error, then success.", f
 	beforeEach(() => {
 		var rOptions = secrets.redditOptions;
 		rOptions.retry_on_server_error = 5;
-		rOptions.retry_delay = 2;
+		rOptions.retry_delay = 1;
 		rOptions.retry_on_wait = true;
 		redditConn = Wrapper(rOptions);
 
@@ -437,7 +413,6 @@ describe("1 server error, then hard wait, then 1 server error, then success.", f
 			let responseCode = results[0];
 			let data = results[1];
 
-			console.log("Response code: " + responseCode);
 			responseCode.should.be.equal(200);
 			done();
 		})
@@ -451,7 +426,7 @@ describe("403 Initially, retry after getting new token.", function() {
 	beforeEach(() => {
 		var rOptions = secrets.redditOptions;
 		rOptions.retry_on_server_error = 5;
-		rOptions.retry_delay = 2;
+		rOptions.retry_delay = 1;
 		rOptions.retry_on_wait = true;
 		redditConn = Wrapper(rOptions);
 
@@ -475,7 +450,6 @@ describe("403 Initially, retry after getting new token.", function() {
 			let responseCode = results[0];
 			let data = results[1];
 
-			console.log("Response code: " + responseCode);
 			responseCode.should.be.equal(200);
 			done();
 		})
@@ -489,7 +463,7 @@ describe("403 Initially, 403 again.", function() {
 	beforeEach(() => {
 		var rOptions = secrets.redditOptions;
 		rOptions.retry_on_server_error = 5;
-		rOptions.retry_delay = 2;
+		rOptions.retry_delay = 1;
 		rOptions.retry_on_wait = true;
 		redditConn = Wrapper(rOptions);
 
@@ -515,6 +489,79 @@ describe("403 Initially, 403 again.", function() {
 		.catch(function(err) {
 			should(err).be.ok();
 			done();
+		});
+	});
+});
+
+describe("403 when getting token", function() {
+	beforeEach(() => {
+		var rOptions = secrets.redditOptions;
+		rOptions.retry_on_server_error = 5;
+		rOptions.retry_delay = 1;
+		rOptions.retry_on_wait = true;
+		redditConn = Wrapper(rOptions);
+
+		nock("https://www.reddit.com")
+		.post("/api/v1/access_token", body => body.username && body.password)
+		.once()
+		.reply(403, {});
+	})
+
+	it("403 on get token", (done) => {
+		redditConn.api.get("/subreddits/mine/subscriber", {
+			limit: 2,
+		})
+		.then(function(results) {
+			// Should not reach here, timeout if we do.
+		})
+		.catch(function(err) {
+			should(err).be.ok();
+			done();
+		});
+	});
+});
+
+describe("503 when getting token, retry 2 times then success.", function() {
+	beforeEach(() => {
+		var rOptions = secrets.redditOptions;
+		rOptions.retry_on_server_error = 2;
+		rOptions.retry_delay = 1;
+		rOptions.retry_on_wait = true;
+		redditConn = Wrapper(rOptions);
+
+		nock("https://www.reddit.com")
+		.post("/api/v1/access_token", body => body.username && body.password)
+		.twice()
+		.reply(503, {});
+
+		nock("https://www.reddit.com")
+		.post("/api/v1/access_token", body => body.username && body.password)
+		.once()
+		.reply(200, {
+			token_type: "Bearer",
+			access_token: "zzz"
+		});
+
+		nock("https://oauth.reddit.com")
+		.get("/subreddits/mine/subscriber?limit=2")
+		.once()
+		.reply(200, {});
+	})
+
+	it("403 on get token", (done) => {
+		redditConn.api.get("/subreddits/mine/subscriber", {
+			limit: 2,
+		})
+		.then(function(results) {
+			let responseCode = results[0];
+			let data = results[1];
+
+			responseCode.should.be.equal(200);
+			done();
+		})
+		.catch(function(err) {
+			// Should not reach here, timeout if we do.
+			console.log("Error code: ", err);
 		});
 	});
 });
