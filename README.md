@@ -48,17 +48,9 @@ var redditConn = new RedditAPI(
             app_id: 'reddit api app id',
             api_secret: 'reddit api secret',
             user_agent: 'user agent for your bot',
-            
-            // Default: false
 			retry_on_wait: true,
-			
-			// Default: 0
 			retry_on_server_error: 5,
-			
-			// Default: 5 seconds.
 			retry_delay: 1,
-
-			// default: false
 			logs: true
         })
 ```
