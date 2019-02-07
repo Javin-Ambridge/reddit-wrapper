@@ -20,7 +20,8 @@
     "url": "https://github.com/Javin-Ambridge/reddit-wrapper"
   },
   "scripts": {
-    "test": "mocha test"
+    "test": "mocha test",
+    "test:types": "tsc -p test/types --noEmit --lib 'es2015'"
   },
   "author": "Javin Ambridge",
   "license": "ISC",
@@ -32,5 +33,5 @@
     "error-handling",
     "auto-retries",
     "auto-delay"
-  ],
+  ]
 }
