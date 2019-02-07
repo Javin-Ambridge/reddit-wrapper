@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "moduleResolution": "node",
+    "paths": {
+      "reddit-wrapper-v2": [
+        "../.."
+      ]
+    }
+  }
+}
