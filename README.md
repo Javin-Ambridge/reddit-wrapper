@@ -7,6 +7,8 @@
 ## Simple to use
 Reddit-Wrapper is designed to be a simple to user reddit API wrapper, while also providing robust error handling and retry capabilities. Every function returns a promise. Allowing the user to easily handle errors in the catch, and results in the then.
 
+Now with TypeScript definitions! (Thanks @yliaho)
+
 This wrapper also has a lot of error handling functionality. As Reddit sometimes errors out in strange ways (random 403's, "You are doing this too much...") handling it within this wrapper allows users to focus on non reddit functionality. Find below all the error handling strategies you can opt into. By default **no** error handling options are enabled except for automatic 403 retries.
 
 Simple API usage:
