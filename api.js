@@ -27,7 +27,6 @@ module.exports = function(options) {
             	this.retry_on_wait = true;
             }
 
-            // DISABLED FOR NOW. CAUSING ERRORS WHEN USED WITH RETRY ON WAIT.
             // Retry on reddit server error
             // If this parameter is present, then the server will retry on a reddit server error. You can also specify the retry wait duration.
             this.retry_on_server_error = 0;
