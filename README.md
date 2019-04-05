@@ -14,17 +14,18 @@ This wrapper also has a lot of error handling functionality. As Reddit sometimes
 Simple API usage:
 
 ``` js
-	reddit.api.get("/subreddits/mine/subscriber", {
-			limit: 2,
-	}) 
-    .then(function(response) {
-	    let responseCode = response[0];
-	    let responseData = response[1];
+reddit.api.get("/subreddits/mine/subscriber", {
+		limit: 2,
+}) 
+.then(function(response) {
+    let responseCode = response[0];
+    let responseData = response[1];
 
-		console.log("Received response (" + responseCode + "): ", responseData);
-	})
-	.catch(function(err) {
-	});
+	console.log("Received response (" + responseCode + "): ", responseData);
+})
+.catch(function(err) {
+	console.log("Reddit Error: ", err);
+});
 ```
 
 
@@ -33,28 +34,27 @@ Simple API usage:
 - [Api](#reddit-api-snooperapi)
 
 ## Setup and Configuration
-### Installing reddit-snooper
+### Installing reddit-wrapper-v2
 ``` bash
 npm install reddit-wrapper-v2 --save
 ```
 
 ### Library usage and configuration
 ``` js
-var RedditAPI = require('reddit-wrapper');
+var RedditAPI = require('reddit-wrapper-v2');
 
-var redditConn = new RedditAPI(
-        {
-            // Options for Reddit Wrapper
-            username: 'reddit_username',
-            password: 'reddit password',
-            app_id: 'reddit api app id',
-            api_secret: 'reddit api secret',
-            user_agent: 'user agent for your bot',
-			retry_on_wait: true,
-			retry_on_server_error: 5,
-			retry_delay: 1,
-			logs: true
-        })
+var redditConn = new RedditAPI({
+	    // Options for Reddit Wrapper
+	    username: 'reddit_username',
+	    password: 'reddit password',
+	    app_id: 'reddit api app id',
+	    api_secret: 'reddit api secret',
+	    user_agent: 'user agent for your bot',
+		retry_on_wait: true,
+		retry_on_server_error: 5,
+		retry_delay: 1,
+		logs: true
+	});
 ```
 
 ### Reddit API Options 
@@ -80,11 +80,11 @@ All you need to get up and running is obtain an api_id and an api_secret. Both c
 5. Copy down the 'secret' that is your api_secret, the 14 character string by the name of your app is your app_id
 6. Use these values and your credentials to configure the snooper
 
-## Reddit API (api)
+## Reddit API
 
-Reddit Wrappers api component is an agnostic wrapper around Reddit's rest API that handles retries, and Reddit's different response codes.
+The API component is an agnostic wrapper around Reddit's rest API that handles retries, and Reddit's different response codes.
 
-In order to use the api head over to the [Reddit API Documentation](https://www.reddit.com/dev/api/). All of the api methods use one of the 5 HTTP methods (GET, POST, PATCH, PUT, DELETE) which map to the 5 different snooper.api methods. 
+In order to use the api head over to the [Reddit API Documentation](https://www.reddit.com/dev/api/). All of the api methods use one of the 5 HTTP methods (GET, POST, PATCH, PUT, DELETE) which map to the 5 different redditAPI.api methods. 
 
 ``` js
 // endpoint: api endpoint ex: 'api/v1/me' or '/api/v1/me/karma/' (listed on api documentation)
@@ -131,11 +131,13 @@ redditWrapper.api.get_token()
 ```
 
 *Note: new accounts get little to no posting privileges (1 comment or post per 5 minutes or more) if you dont have any karma. If you just want to play around with the api I recommend using an active account.*
+
 *Note: the response from any HTTP methods will be an array containing [responseCode, data].*
+
 *Note: Any 403 that occurs during a retry process will cause a token refresh and a endpoint retry.*
 
 
-### basic api usage
+### Basic API Usage
 
 check how much karma your bot has
 ``` js

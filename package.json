@@ -1,6 +1,6 @@
 {
   "name": "reddit-wrapper-v2",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "Simple Reddit API framework for nodejs. Replacing the no longer updated reddit-snooper. Relying more on promises rather than callbacks. Nicely handles multiple reddit errors.",
   "main": "reddit-wrapper.js",
   "types": "types/reddit-wrapper.d.ts",
